@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[12]:
 
 
 import numpy as np
 
 
-# In[3]:
+# In[13]:
 
 
 def sgd_momentum(w,dw,config=None):
@@ -29,12 +29,18 @@ def sgd_momentum(w,dw,config=None):
     v = config.get('velocity',np.zeros_like(w))
     
     next_w = None
-    v = config['momentum'] * v - config['learning_tate']*dw
+    v = config['momentum'] * v - config['learning_rate']*dw
     next_w = w + v
     
     config['velocity'] = v
     
     return next_w,v
+
+
+# In[14]:
+
+
+get_ipython().system('jupyter nbconvert --to python optim.ipynb')
 
 
 # In[ ]:
