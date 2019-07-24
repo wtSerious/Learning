@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[26]:
 
 
 import sys;
@@ -10,7 +10,7 @@ import optim
 import numpy as np
 
 
-# In[2]:
+# In[35]:
 
 
 class Solver(object):
@@ -24,7 +24,7 @@ class Solver(object):
         self.lr_decay = kwargs.pop('lr_decay',1.0)
         self.batch_size = kwargs.pop('batch_size',100)
         self.num_epochs = kwargs.pop('num_epochs',10)
-        self.print_every = kwargs.pop('print_every','10')
+        self.print_every = kwargs.pop('print_every',10)
         self.verbose = kwargs.pop('verbose',True)
        
         # Throw an error if there are extra keyword arguments
@@ -72,13 +72,12 @@ class Solver(object):
         #Compute the loss and gradient
         loss,grads = self.model.loss(X_batch,y_batch)
         self.loss_history.append(loss)
-        
         for p,w in self.model.params.items():
             dw = grads[p]
             config = self.optim_configs[p]#这是啥
             next_w,next_config = self.update_rule(w,dw,config)
             self.model.params[p] = next_w
-            self.optim_config[p] = next_config
+            self.optim_configs[p] = next_config
     
     def check_accuracy(self,X,y,num_samples = None,batch_size = 100):
         N = X.shape[0]
@@ -91,7 +90,7 @@ class Solver(object):
         #Compute predictions in batches
         num_batches = int(N/batch_size)
         if N % batch_size !=0:
-            numbatches += 1
+            num_batches += 1
 
         y_pred = []
         for i in range(num_batches):
@@ -110,14 +109,14 @@ class Solver(object):
         #计算整个数据集有多少个 batch_size 大小
         iterations_per_epoch = max(int(num_train/self.batch_size),1)
         
-        num_iterations = iterations_per_epoch * self.batch_size
+        num_iterations = iterations_per_epoch *self.num_epochs
         
         for i in range(num_iterations):
             self._step()
             if self.verbose and i % self.print_every == 0:
-                print ('(Iteration %d / %d) loss: %f' % (i + 1, num_iterations, self.loss_history[-1]))
+                print ("(Iteration %d / %d) loss: %f" % (i + 1, num_iterations, self.loss_history[-1]))
             
-            epoch_end = (i+1) % iterations_per_epoch ==0
+            epoch_end = ((i+1) % iterations_per_epoch) == 0
             if epoch_end:
                 self.epoch +=1
                 for k in self.optim_configs:
@@ -130,10 +129,9 @@ class Solver(object):
                 val_acc = self.check_accuracy(self.X_val,self.y_val,num_samples=1000)
                 self.train_acc_history.append(train_acc)
                 self.val_acc_history.append(val_acc)
-                
                 if self.verbose:
-                    if self.verbose and i % self.print_every == 0:
-                        print ('(Iteration %d / %d) loss: %f' % (i + 1, num_iterations, self.loss_history[-1]))
+                    print ('(Epoch %d / %d) train acc: %f; val_acc: %f' % (
+                     self.epoch, self.num_epochs, train_acc, val_acc))
                 
                     if val_acc > self.best_val_acc:
                         self.best_val_acc = val_acc
@@ -142,7 +140,7 @@ class Solver(object):
                             self.best_params[k] = v.copy()
 
 
-# In[3]:
+# In[32]:
 
 
 get_ipython().system('jupyter nbconvert --to script solver.ipynb')
