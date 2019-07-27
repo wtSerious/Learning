@@ -77,13 +77,11 @@ class local_CIFAR10(Dataset):
     def __getitem__(self,index):
         img, target = self.data[index],self.targets[index]
         
-        img = Image.fromarry(img)
-        
+        img = Image.fromarray(img)
         # doing this so that it is consistent with all other datasets
         # to return a PIL Image
         if self.transform is not None:
             img = self.transform(img)
-        
         if self.target_transform is not None:
             target = self.target_transform(target)
         
